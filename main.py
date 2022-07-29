@@ -178,9 +178,9 @@ class ReceiverJob(Thread):
                             # wer werom. Se wurre dus net bepaalt troch de Arduino sels
                             timestamp_key = int(lines[-2][3:].split('=')[0])
 
-                            # Opdrachten die't let wer werom kaam kinne, opneuke
+                            # Opdrachten die't let wer werom kaam binne, opneuke d'r mei
                             # Der wurdt neat mear mei dien. It haadproses, die hjir op wachte,
-                            # is al wer drok mei saken
+                            # is al wer drok mei oare saken
                             if round(time.time()) - timestamp_key > self.seconds_to_keep_commands:
                                 pass
 
@@ -196,7 +196,7 @@ class ReceiverJob(Thread):
 
                 # Sjoch, wy hawwe een buffer ferdield tot it teken foar in neie regel (\n)
                 # Mar dan sit der nog wol wat yn de buffer dat belangryk is foar de bou fan de
-                # folgjende line dat wy yn de folgjende loop wer útlêze.
+                # folgjende regel dat wy yn de folgjende loop wer útlêze.
                 self.byte_buffer = bytearray(lines[-1], 'utf-8')
 
             # Die âlde rommel wurdt net mear brûkt, opneuke mei die bende
@@ -221,7 +221,7 @@ def service_shutdown(signal_number, frame):
     """ Funksje allinnig mar om de útsûndering te goaien
         Sinjaal en it raamke dat er noadig hat dêr is de bibliooteek "signal" foar noadig
         Dus boppe oan yn it script stjit "import signal"
-        En ien het haadproces (main()), jouwe wy oan welk signaal dat'r nei luusterje mat,
+        En ien het haadproces (main()), jouwe wy oan welk sinjaal dat'r nei luusterje mat,
         om dêrna dizze funksje oan te roppen
 
         Op dizze wize mat dat gebirre:
@@ -229,16 +229,26 @@ def service_shutdown(signal_number, frame):
         signal.signal(signal.SIGINT, service_shutdown)
 
         Mast mar es opsykje welke sinjalen te belústerjen binne (SIGINT, SIGTERM, SIGQUIT, ...)
-        Foar no is dit genôch, omdat it script bedoeld is om ien in terminal te starten
+        Foar no is dit genôch, omdat it script bedoeld is om ien in terminal te rinnen
     """
     print('Programma is ûnderbrekke, mei it folgjende sinjaal: ' + str(signal_number))
     raise ServiceExit
 
 
 def main():
+    """ It haadproses
+        Hjir kin wy it saakje mei draaiende krije
+    """
+
+    # Hjir melde we üs oan aan de sinjalen fan het bestjoeringssysteem
     signal.signal(signal.SIGTERM, service_shutdown)
     signal.signal(signal.SIGINT, service_shutdown)
 
+    # We matte eerst even een lege wurker oan meitsje
+    # Sjoch as er een útsundering krijt foardat ie echt
+    # oanmakke wurt, dan soe de code om de útsundering op
+    # te fangen it bestean fan disser wurker net wiete
+    # Je witte mar noait fansels. No sa!
     receiver_job = None
 
     try:
@@ -299,9 +309,19 @@ def main():
         print("De Arduino is net oansluuten, of dat ding hat een oare poort namme kriegen. " +
               "Mast em even ien een oar USB gotsje stekke! Oars dan mast mie wer een oare " +
               "lokaasje opjaan ien mien programma code. Disse lokaasje hak no: " + arduino_port)
+
+        # We slúte ôf mei een 1, dit jouwt oan het bestjoeringssysteem it sinjaal
+        # dat it programma net goed âfslúten is, want ja, d'r is wat mis, ist net sa?
         exit(1)
 
     except ServiceExit:
+        """ We hawwe de útsundering kriegen foar ôfslúten
+            We vertelle it wurker tritsje dat er sien saakjes
+            klear meitsje mat, en op te neuken.
+            
+            We matte dan it aparte proses mei it haadproses verbiene, sa
+            dat it saakje mei it haadproses tegeare ôfslúte kin.
+        """
         if receiver_job:
             receiver_job.shutdown_flag.set()
             receiver_job.join()
