@@ -35,27 +35,27 @@ import signal
 """Ynstellings dy wy makkelijk even feroarje kinne"""
 
 # Seriële poart wêr dat de Arduino oan hinget
-# Disse kin wol es feroarje ast dat ding te snel oppenei yn in USB gotsje stekkest
+# Dizze kin wol es feroarje ast dat ding te snel oppenei yn in USB gotsje stekkest
 # Dan krijt er bygelyks wol es de namme /dev/ttyUSB1
 arduino_port = "/dev/ttyUSB0"
 
-# De snelhiet fan de kommunikaasje tussen de Arduino en disse computer
-# Dit kinst feroarje, et kin nog folle sneller fansels
-# Maar disse snelhiet mat geliek wêze oan de ynstellings fan de Arduino
+# De snelhiet fan de kommunikaasje tussen de Arduino en dizze computer
+# Dit kinst feroarje, et kin nog folle flucher fansels ...
+# Maar dizze snelhiet mat geliek wêze oan de ynstellings fan de Arduino
 # Dus net oanpasse ast et op de Arduino ek net oanpast!
 #
 # Standert ynstelling foar de meeste seriële apparaten is 9600
 # Dus dat hak mar sa litten
 #
 # De Arduino kin mei in snelhiet fan 115200 oan de skieterij wêze, hoe
-# moai dat ek is, dot is tink ik meer om realtime gegevens te sammeljen.
-# En dêr broeke wy et spul net foar.
+# moai dat ek is, dot is tink ik mear om realtime gegevens te sammeljen.
+# En dêr broeke wy it spul net foar.
 #
-# Dus 9600 is meer as genôch. En in legere snelhiet is bygelyks minder gefoelich
-# foar stoor sinjalen
+# Dus 9600 is mear as genôch. En in legere snelhiet is bygelyks minder gefoelich
+# foar eksterne steursinjalen dy't ûs dreech meitsje om it saakje ût te lêzeb.
 arduino_baudrate = 9600
 
-# Wy meitsje de stapel commando's dy't wy ontvangen hieden nei in skoftke wer skjin
+# Wy meitsje de stapel commando's, dy't wy ontvangen hieden, nei in skoftke wer skjin.
 # Dan bin wy dêr wis fan dat it saakje sien geheugen net op brûkt as wy dit
 # programma in skoftsje oan stean litte
 command_timeout = 5.0
@@ -68,7 +68,8 @@ class ReceiverJob(Thread):
 
     def __init__(self, serial, seconds_to_keep_commands):
         """ Dit is de constructor fan it beestje
-            Dit brûkst om disse kloat oan te meitsjen en wêr dûdelijk is wot er noadig is fan jo
+            Dit brûkst om dizze kloat oan te meitsjen en wer dûdelijk
+            is wot er noadig is fan dy om it wurkjende te krijgen
             En dot bin de folgjende parameters:
 
             Parameters:
@@ -84,23 +85,23 @@ class ReceiverJob(Thread):
         self.seconds_to_keep_commands = seconds_to_keep_commands
 
         # Wy hawwe spitigernôch gjin iepenbare en privee mooglikheden in python
-        # Ik haw disse fariabelen mar even apart setten mei dit kommentaar
-        # Disse binne bedoeld om ût te lêzen troch it haadtriedsje (main())
+        # Ik haw dizze fariabelen mar even apart setten mei dit kommentaar.
+        # Dizze binne bedoeld om ût te lêzen troch it haadtriedsje (main())
         # Hjir kin wy dus wat mei, de fariabelen hjir boppe rêd it beestje hjir sels mei
         self.arduino_answers = {}
         self.last_status = ''
 
-        # Disse is net belangryk foar wat wy noadig binne,
-        # Mar ik set it hjir even del om dat disse eins ek iepenbaar is
-        # Disse brûke wy yn it gefal dat wy afslûte wolle of dêr is in oare reden om
+        # Dizze is net belangryk foar wat wy noadig binne,
+        # Mar ik set it hjir even del om dat dizze eins ek iepenbaar is
+        # Dizze brûke wy yn it gefal dat wy afslûte wolle of dêr is in oare reden om
         # dit triedsje te stopjen
         # In apart triedsje kin ommers gjin sinjalen ontvangen fan het bestjoeringssysteem
-        # Disse sinjalen krijt het haadproses (main()), mar it haadproses kin efter dat it sa'n
+        # Dizze sinjalen krijt het haadproses (main()), mar it haadproses kin efter dat it sa'n
         # sinjaal krijt, dit flagje oanpasse, sa dat it triedsje wiet dat er ofslúte mat, sa
         # kin er sien spultsje nog even ôfmeitsje, wy brûke dêr dit kommando foar yn het
         # haadproses (main()):
         #
-        # hoest_disse_klasse_ek_mar_oan_makke_hiedest.shutdown_flag.set()
+        # hoest_dizze_klasse_ek_mar_oan_makke_hiedest.shutdown_flag.set()
         self.shutdown_flag = Event()
 
     def run(self):
@@ -151,12 +152,12 @@ class ReceiverJob(Thread):
 
                 continue
             except OSError:
-                # Disse útsundering hie ik fan ferwachte dat er fangt wêze soe troch
+                # Dizze útsundering hie ik fan ferwachte dat er fangt wêze soe troch
                 # de SerialException, docht er net, dus fange wy et sels mar op
                 # Wy kin hjir letter ek fan meitsje dat er troch gjit mei et spul, maar
                 # foar eerst stopje wy it hiele programma
                 #
-                # Disse útsundering krije wy te sjen ast de Arduino fan sien poart ôf neukst
+                # Dizze útsundering krije wy te sjen ast de Arduino fan sien poart ôf neukst
                 print("In IO error jung")
                 self.serial_port_available = False
                 self.unrecoverable_error = True
@@ -248,7 +249,7 @@ def main():
     # Wy matte eerst even in lege wurker oan meitsje
     # Sjoch as er in útsundering krijt foardat ie echt
     # oanmakke wurt, dan soe de code om de útsundering op
-    # te fangen it bestean fan disser wurker net wiete
+    # te fangen it bestean fan dizze wurker net wiete
     # Je witte mar noait fansels. No sa!
     receiver_job = None
 
@@ -347,7 +348,7 @@ def main():
     except SerialException:
         print("De Arduino is net oansluuten, of dat ding hat in oare poort namme kriegen. " +
               "Mast em even ien in oar USB gotsje stekke! Oars dan mast mie wer in oare " +
-              "lokaasje opjaan ien mien programma code. Disse lokaasje hak no: " + arduino_port)
+              "lokaasje opjaan ien mien programma code. Dizze lokaasje hak no: " + arduino_port)
 
         # Wy slúte ôf mei in 1, dit jouwt oan het bestjoeringssysteem it sinjaal
         # dat it programma net goed âfslúten is, want ja, d'r is wat mis, ist net sa?
@@ -355,7 +356,7 @@ def main():
 
     except ServiceExit:
         """ Wy hawwe de útsundering kriegen foar ôfslúten
-            Wy vertelle it wurker tritsje dat er sien saakjes
+            Wy vertelle it wurker triedsje dat er sien saakjes
             klear meitsje mat, en op te neuken.
             
             Wy matte dan it aparte proses mei it haadproses verbiene, sa
