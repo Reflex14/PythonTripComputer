@@ -136,17 +136,18 @@ class ReceiverJob(Thread):
                     try:
                         for x in range(10, 0, -1):
                             sleep(1)
-                            print('\r We starte de seriële bende wer oer san ' + str(x) + ' seconden'),
+                            print('\rWe starte de seriële bende wer oer san '
+                                  + str(x) + ' seconden       ', end="", flush=True)
 
                         # We iepenje et saakje wer, en at d'r nog net beskikber is, dan
                         # goait er een útsundering (SerialException), en krije we ús printsje
                         # dat er d'r wer is net te sjen
                         self.serial.open()
-                        print('Seriële poarte idder, we gjin wer troch ...')
+                        print('\rSeriële poarte idder, we gjin wer troch ...     ')
 
                         self.serial_port_available = True
                     except SerialException:
-                        print("Seriële poart idder nog steeds net boeke ....")
+                        print("\rSeriële poart idder nog steeds net boeke ....     ", end="", flush=True)
 
                 continue
             except OSError:
@@ -252,6 +253,16 @@ def main():
     receiver_job = None
 
     try:
+        # No sa! De seriële poart even oan meitsje
+        # Dit hat in biblioteek noadig, boppe oan it script
+        # stjit: "from serial import *" dus wy ha alle funksjes
+        # en variabelen lekker makkelijk tot ûs beskikking fan dizze
+        # biblioteek.
+        #
+        # Net een wiis plan, wist do op it lêst dan noch wêr al die brûkberre
+        # funksjes en variabelen wei komme?
+        #
+        # Better kin wy de biblioteek op dizze manier lade: "import serial"
         ser = Serial(
             port=arduino_port,
             baudrate=arduino_baudrate,
@@ -263,29 +274,58 @@ def main():
             rtscts=1
         )
 
+        # No hawwe der oan de boppekant fan dit moaie stikje programmacode
+        # een hurde wurker stean dy't nog neat docht. We sille em rúmte jaan
+        # om syn wurk te dwaan troch it oanmeitsjen fan in object, it triedsje
+        # makket er sels oan, dat hawwe moai regele ien de wurker sels, fienst
+        # ek net? Wy matte dizze wurkaholic allinig noch fertelle dat
+        # er starte mei, noh ja, en dat sille wy dwaan ek hjir ûnder
         receiver_job = ReceiverJob(ser, round(command_timeout) + 5)
         receiver_job.start()
         flipflop = 0
 
+        # Úteinlik nei al die tarieding, komme wy hjir, dit stikje rint
+        # ûneinich troch, tot dat dêr wat mis is, of ôfslúte mat.
+        # Hjir komt de aksje dy't wy dwaan wolle
         while True and not receiver_job.unrecoverable_error:
             if receiver_job.last_status == '':
                 print('.', end='', flush=True)
                 sleep(2)
                 continue
 
+            # Efkes sjen wat it sels te sizzen hat
             print()
             print("Status:\t" + receiver_job.last_status)
 
+            # Wy hawwe in tiit noadig, foar ûs tiitkaai
+            # Mar ferstjûre it oars nei de Arduino, en we hâlde
+            # dizze tiit efkes tot achter de komma. Sa kin wy tot
+            # achter de komma de tiit berekenje dy't it noadig
+            # hat om it kommando te stjoeren, te ferwurkjen, en
+            # wer werom te krijen.
             command_timestamp = time.time()
 
+            # No sille wy dat saakje efkes omsette sûnder de komma
+            # Sa stjûre wy dat nei de Arduino ta, sa dat wy witte
+            # as dêr reaksje op is, hokker kommando by hokker reaksje heard
+            #
+            # Wês aldermachtigst foarsichtig mei dizze kaai, brûk altyd in koeske
+            # tusken troch, oars dan hawwe doebele kaai's te ferwurkjen. Ik warskôgje
+            # allinig, as it fluchter moat, brûk dyn harsens es in kear om in oare kaai
+            # út te finen.
             timestamp = round(command_timestamp)
+
+            # Frei om hjir alles te stjoeren, mar sa mat it:
             writing = str(timestamp) + "=13:" + str(flipflop)
             ser.write(bytes(writing, 'utf-8'))
 
+            # Wy wachtsje op antwurt, mar net te lang, wy hawwe oar spul te dwaan, ho is even!
             while timestamp not in receiver_job.arduino_answers.keys() \
                     and (time.time() - command_timestamp) < command_timeout:
                 pass
 
+            # Hawwe it werkelijk wer werom? Noh ja, en as't sa is, witte wy dat it
+            # Kommando slache is
             if timestamp in receiver_job.arduino_answers.keys():
                 seconds_it_took = time.time() - command_timestamp
 
@@ -299,18 +339,17 @@ def main():
                 else:
                     flipflop = 0
             else:
+                # Ferrek, der doocht iets net! Miskien hast de ellende oerstjoer makke mei
+                # tefolle wurk?
                 print("Command " + writing + " failed, timeout of " +
                       str(round(command_timeout, 3)) + " seconds reached")
-
-                for key in receiver_job.arduino_answers.keys():
-                    print(key)
 
     except SerialException:
         print("De Arduino is net oansluuten, of dat ding hat een oare poort namme kriegen. " +
               "Mast em even ien een oar USB gotsje stekke! Oars dan mast mie wer een oare " +
               "lokaasje opjaan ien mien programma code. Disse lokaasje hak no: " + arduino_port)
 
-        # We slúte ôf mei een 1, dit jouwt oan het bestjoeringssysteem it sinjaal
+        # We slúte ôf mei in 1, dit jouwt oan het bestjoeringssysteem it sinjaal
         # dat it programma net goed âfslúten is, want ja, d'r is wat mis, ist net sa?
         exit(1)
 
@@ -330,4 +369,8 @@ def main():
 
 
 if __name__ == '__main__':
+    """ Noh ja, dit hoecht net sa, mar tis toch moai dat it sa kin, tinkst net?
+    
+       Ik bedoel, wat iddat no: "if __name__ == '__main__':" dot sjocht d'r toch net ût?
+    """
     main()
