@@ -1,0 +1,2 @@
+pyserial~=3.5
+setuptools~=60.2.0
