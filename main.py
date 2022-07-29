@@ -154,6 +154,8 @@ class ReceiverJob(Thread):
                 # de SerialException, docht er net, dus fange wy et sels mar op
                 # We kin hjir letter ek fan meitsje dat er troch gjit mei et spul, maar
                 # foar eerst stopje we it hiele programma
+                #
+                # Disse útsundering krije wy te sjen ast de Arduino fan sien poart ôf neukst
                 print("Een IO error jung")
                 self.serial_port_available = False
                 self.unrecoverable_error = True
