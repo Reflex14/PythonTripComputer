@@ -42,13 +42,20 @@ arduino_port = "/dev/ttyUSB0"
 # De snelhiet fan de kommunikaasje tussen de Arduino en disse computer
 # Dit kinst feroarje, et kin nog folle sneller fansels
 # Maar disse snelhiet mat geliek weze oan de ynstellings fan de Arduino
-# Dus net oanpasse ast et op de Arduino ek net oanpast
+# Dus net oanpasse ast et op de Arduino ek net oanpast!
+#
 # Standert ynstelling foar de meeste seriële apparaten is 9600
-# De Arduino kin tot 115200 oan, hoe moai dat ek is, dot is tink ik meer om
-# realtime gegevens te sammeljen. Dus 9600 is meer as genôch.
+# Dus dat hak mar sa litten
+#
+# De Arduino kin mei een snelhiet fan 115200 oan de skieterij wêze, hoe
+# moai dat ek is, dot is tink ik meer om realtime gegevens te sammeljen.
+# En dêr broeke we et spul net foar.
+#
+# Dus 9600 is meer as genôch. En een legere snelhiet is bygelyks minder gefoelich
+# foar stoor sinjalen
 arduino_baudrate = 9600
 
-# Wy meitsje de stapel commando's dy't wy ontvangen hieden nei een tiitsje wer skjin
+# Wy meitsje de stapel commando's dy't wy ontvangen hieden nei een skoftke wer skjin
 # Dan bin wy dêr wis fan dat it saakje sien geheugen net op brûkt as wy dit
 # programma in skoftsje oan stean litte
 command_timeout = 5.0
@@ -60,7 +67,7 @@ class ReceiverJob(Thread):
     """
 
     def __init__(self, serial, seconds_to_keep_commands):
-        """ Dit is de constuctor fan it beestje
+        """ Dit is de constructor fan it beestje
             Dit brûkst om disse kloat oan te meitsjen en wêr dûdelijk is wot er noadig is fan jo
             En dot bin de folgjende parameters:
 
@@ -83,38 +90,57 @@ class ReceiverJob(Thread):
         self.arduino_answers = {}
         self.last_status = ''
 
-        # Disse is net belangryk foar wat dat wy noadig binne,
+        # Disse is net belangryk foar wat wy noadig binne,
         # Mar ik set it hjir even del om dat disse eins ek iepenbaar is
         # Disse brûke we yn it gefal dat we afslûte wolle of dêr is een oare reden om
         # dit triedsje te stopjen
         # Een apart triedsje kin ommers gjin sinjalen ontvangen fan het bestjoeringssysteem
         # Disse sinjalen krijt het haadproses (main()), mar it haadproses kin efter dat it sa'n
-        # sinjaal krijt, dit flagje oanpasse mei it folgjende kommando:
+        # sinjaal krijt, dit flagje oanpasse, sa dat it triedsje wiet dat er ofslúte mat, sa
+        # kin er sien spultsje nog even ôfmeitsje, we brûke dêr dit kommando foar yn het
+        # haadproses (main()):
         #
         # hoest_disse_klasse_ek_mar_oan_makke_hiedest.shutdown_flag.set()
         self.shutdown_flag = Event()
 
     def run(self):
+        # We stopje net earder dan dat wy de oarder krije om de geest te jaan
         while not self.shutdown_flag.is_set():
             try:
+                # We stopje ûs bufferke vol mei all wat et bestjoeringssysteem foar
+                # ûs sammelje hat, fan de seriële keppeling mei de Arduino
                 self.byte_buffer.extend(self.serial.read(self.serial.inWaiting()))
 
                 # Even sliepe, oars hat et processorke gjin tiit meer foar oare dingen
                 sleep(0.01)
             except SerialException:
+                # Hjir gjit et mis mei de keppeling, kin komme troch dast er mei dien
+                # brieke klauwen oan sist, mar kin ek wêze dat een oar programma ûs poart
+                # stellen hat
+                #
+                # We soargje d'r hjir foar dat we rinnende bliuwe en besykje de keppeling
+                # werom te heljen
                 self.serial_port_available = False
 
+                # We witte net hoe lang dat d'r fjot wêst is, we meitsje de buffers skjin
+                # Dat sil fêst net meer klopje, tinkst al?
                 self.arduino_answers = {}
                 self.last_status = ''
                 self.byte_buffer = bytearray()
+
+                # No kin we de keppeling slúte
                 self.serial.close()
 
+                # En wachtsje we wer tot er d'r wer is
                 while not self.serial_port_available:
                     try:
                         for x in range(10, 0, -1):
                             sleep(1)
                             print('\r We starte de seriële bende wer oer san ' + str(x) + ' seconden'),
 
+                        # We iepenje et saakje wer, en at d'r nog net beskikber is, dan
+                        # goait er een útsundering (SerialException), en krije we ús printsje
+                        # dat er d'r wer is net te sjen
                         self.serial.open()
                         print('Seriële poarte idder, we gjin wer troch ...')
 
@@ -124,6 +150,10 @@ class ReceiverJob(Thread):
 
                 continue
             except OSError:
+                # Disse útsundering hie ik fan ferwachte dat er fangt wêze soe troch
+                # de SerialException, docht er net, dus fange wy et sels mar op
+                # We kin hjir letter ek fan meitsje dat er troch gjit mei et spul, maar
+                # foar eerst stopje we it hiele programma
                 print("Een IO error jung")
                 self.serial_port_available = False
                 self.unrecoverable_error = True
@@ -131,6 +161,7 @@ class ReceiverJob(Thread):
                 self.shutdown_flag.set()
 
             if b'\n' in self.byte_buffer:
+                # No sette we de ûntfangen gegevens om nei een formaat dêr't wy wat mei kinne
                 lines = self.byte_buffer.decode('utf-8').split('\n')  # Sjuuuh, dan ha je gewoan twaa buffer rigeltsjes
 
                 if lines[-2]:
@@ -159,8 +190,8 @@ class ReceiverJob(Thread):
                         self.last_status = lines[-2]
 
                 # Sjoch, wy hawwe een buffer ferdield tot it teken foar in neie regel (\n)
-                # Mar dan sit der nog wol wat yn de buffer dat belangryk is foar de bou fan de volgende
-                # line dat wy yn de folgjende loop wer útlêze.
+                # Mar dan sit der nog wol wat yn de buffer dat belangryk is foar de bou fan de
+                # folgjende line dat wy yn de folgjende loop wer útlêze.
                 self.byte_buffer = bytearray(lines[-1], 'utf-8')
 
             # Die âlde rommel wurdt net mear brûkt, opneuke mei die bende
@@ -168,27 +199,27 @@ class ReceiverJob(Thread):
                 if round(time.time()) - key > self.seconds_to_keep_commands:
                     del self.arduino_answers[key]
 
-        # Gewoan een notifikaasje om witten te litten dat it triedsje is stoppe
+        # Gewoan een notifikaasje om witten te litten dat it triedsje stoppe is
         print("Is it triedsje al wer afrûn, hast dat sels verneukt, of idder wot mis?")
 
 
 class ServiceExit(Exception):
     """ Hjir hawwe even een eigen útsûndering makke dy't
         wy sels goaie kinne en dêrnei op it goede plak werom fange kinne
-        om de triedsjes en it programma sels netsjes of te slúten
+        om de triedsjes en it programma sels netsjes ôf te slúten
     """
     pass
 
 
 # noinspection PyUnusedLocal
 def service_shutdown(signal_number, frame):
-    """ Funksje allinnig maar om de útsûndering te goaien
+    """ Funksje allinnig mar om de útsûndering te goaien
         Sinjaal en it raamke dat er noadig hat dêr is de bibliooteek "signal" foar noadig
-        Dus boppe oan "import signal"
-        En ien het haadproces (main), jouwe oan welk signaal dat'r nei luusterje mat,
-        om dêrna dizze funksje oant roppen
+        Dus boppe oan yn it script stjit "import signal"
+        En ien het haadproces (main()), jouwe wy oan welk signaal dat'r nei luusterje mat,
+        om dêrna dizze funksje oan te roppen
 
-        Op dizze wize:
+        Op dizze wize mat dat gebirre:
         signal.signal(signal.SIGTERM, service_shutdown)
         signal.signal(signal.SIGINT, service_shutdown)
 
