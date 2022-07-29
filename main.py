@@ -172,7 +172,10 @@ class ReceiverJob(Thread):
                             # Yngewikkelds stjit hjir, mar wy bin d'r wer út kaam
                             # As't my fregest hoe't dit wurket, sla ik dy mei de klomp op 'e harses, it wurket!
                             # We krije een kaai wer werom, en dat is in tiitkaai, mei djoere wurden, in timestamp
-                            # Sa kin antwurden fan de Arduino fan we de kommando's dat wy stjoere, út in oar hâlde
+                            # Sa kin wy de antwurden fan de kommandoos dy't wy de Arduino stjoert ha, út in oar hâlde
+                            #
+                            # De tiitsleutels ha we mei dit script sels nei de Arduino stjoert. En dat jouwt er ûs
+                            # wer werom. Se wurre dus net bepaalt troch de Arduino sels
                             timestamp_key = int(lines[-2][3:].split('=')[0])
 
                             # Opdrachten die't let wer werom kaam kinne, opneuke
