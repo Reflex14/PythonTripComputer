@@ -1,2 +1,4 @@
 pyserial~=3.5
-setuptools~=60.2.0
+setuptools==63.4.1
+Kivy~=2.1.0
+kivymd~=0.104.2

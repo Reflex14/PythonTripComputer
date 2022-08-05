@@ -1,0 +1,127 @@
+<Genieter>
+MDBoxLayout:
+    orientation: 'vertical'
+
+    MDGridLayout:
+        size_hint_y: None
+        height: '48dp'
+        rows: 1
+        # Spinner:
+        #   text: 'Dashboard'
+        #    values: 'Dashboard',  'Verlichting', 'Multimedia', 'Instellingen'
+        #    on_text: sm.current = self.text
+        MDIconButton:
+            icon: 'lightbulb-on' if app.navigation_lights['port'] else 'lightbulb-outline'
+            size_hint_x: None
+            width: self.height
+            theme_text_color: "Custom" if app.navigation_lights['port'] else "Secondary"
+            text_color: 1, 0, 0, 1
+            on_release: if not app.lock: app.navigation_lights['port'] = app.board_lights = False if app.navigation_lights['port'] else True
+        MDIconButton:
+            icon: 'database' if app.navigation_lights['masthead'] and app.navigation_lights['port'] and app.navigation_lights['starboard'] else 'anchor' if not app.navigation_lights['port'] or not app.navigation_lights['starboard'] else 'database-outline'
+            size_hint_x: None
+            width: self.height
+            theme_text_color: "Custom" if app.navigation_lights['masthead'] else "Secondary"
+            text_color: 1, 1, 1, 1
+            on_release: if not app.lock: app.navigation_lights['masthead'] = False if app.navigation_lights['masthead'] else True
+        MDIconButton:
+            icon: 'lightbulb-on' if app.navigation_lights['starboard'] else 'lightbulb-outline'
+            size_hint_x: None
+            width: self.height
+            theme_text_color: "Custom" if app.navigation_lights['starboard'] else "Secondary"
+            text_color: 0, 1, 0, 1
+            on_release: if not app.lock: app.navigation_lights['starboard'] = app.board_lights = False if app.navigation_lights['starboard'] else True
+        MDIconButton:
+            icon: 'ceiling-light'
+            size_hint_x: None
+            width: self.height
+            theme_text_color: "Custom" if app.ceiling_light else "Secondary"
+            text_color: 1, 1, 0, 1
+            on_release: if not app.lock: app.ceiling_light = False if app.ceiling_light else True
+        MDIconButton:
+            icon: 'wiper'
+            size_hint_x: None
+            width: self.height
+            theme_text_color: "Primary" if app.wiper_left else "Secondary"
+            on_release: if not app.lock: app.wiper_left = False if app.wiper_left else True
+        MDIconButton:
+            icon: 'wiper'
+            size_hint_x: None
+            width: self.height
+            theme_text_color: "Primary" if app.wiper_right else "Secondary"
+            on_release: if not app.lock: app.wiper_right = False if app.wiper_right else True
+        MDIconButton:
+            icon: 'bell-ring' if app.horn else 'bell-outline'
+            size_hint_x: None
+            width: self.height
+            theme_text_color: 'Custom' if app.horn else "Secondary"
+            text_color: 1, 0, 0, 1
+            on_release: if not app.lock: app.horn = False if app.horn else True
+        MDIconButton:
+            icon: 'lock-outline' if app.link_board_lights else 'lock-open-variant-outline'
+            size_hint_x: None
+            width: self.height
+            theme_text_color: "Primary" if app.link_board_lights else "Secondary"
+            on_release: app.link_board_lights = False if app.link_board_lights else True
+        MDIconButton:
+            icon: 'lock-outline' if app.lock else 'lock-open-variant-outline'
+            size_hint_x: None
+            width: self.height
+            theme_text_color: "Primary" if app.lock else "Secondary"
+            on_release: app.lock = False if app.lock else True
+
+
+    ScreenManager:
+        id: sm
+
+        MDScreen:
+            name: 'Dashboard'
+
+            MDBoxLayout:
+                orientation: 'vertical'
+
+                Label:
+                    text: str(app.volume)
+
+        MDScreen:
+            name: 'Verlichting'
+
+            MDLabel:
+                text: "Hoi"
+        MDScreen:
+            name: 'Multimedia'
+
+            MDBoxLayout:
+                MDLabel:
+                    text: "Hoi"
+                MDSwitch:
+        MDScreen:
+            name: 'Instellingen'
+
+            MDBoxLayout:
+                MDLabel:
+                    text: "Hoi"
+                MDSwitch:
+
+    BoxLayout:
+        size_hint_y: None
+        rows: 1
+        height: '48dp'
+
+        MDIconButton:
+            icon: 'volume-mute' if app.mute else 'volume-low' if not app.volume == 0 else 'volume-off'
+            size_hint_x: None
+            width: self.height
+            theme_text_color: "Secondary" if app.mute else "Primary"
+            on_release: app.mute = False if app.mute else True
+        MDSlider:
+            min: 0
+            max: 100
+            value: app.volume
+            on_touch_move: app.volume = int(self.value)
+        MDIconButton:
+            icon: 'volume-mute' if app.mute else 'volume-high' if not app.volume == 0 else 'volume-off'
+            size_hint_x: None
+            width: self.height
+            theme_text_color: "Secondary" if app.mute else "Primary"
+            on_release: app.mute = False if app.mute else True
